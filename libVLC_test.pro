@@ -39,14 +39,17 @@ LIBS      += -L$$SDKPATH\lib -llibvlc -llibvlccore
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    videolist.cpp \
     vlc_player.cpp
 
 HEADERS += \
     mainwindow.h \
+    videolist.h \
     vlc_player.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    videolist.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

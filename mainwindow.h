@@ -5,8 +5,10 @@
 #include <QStyle>
 #include <QFile>
 #include <QFileDialog>
+#include <QTime>
 
 #include "vlc_player.h"
+#include "videolist.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,6 +22,14 @@ public:
     MainWindow(QWidget *parent = Q_NULLPTR);
     ~MainWindow();
 
+public slots:
+    void playVideo(QString path);
+    void setTotalTime(long total_ms);
+    void setCurrentTime(long current_ms);
+    void setVideoState(libvlc_state_t state);
+    void videoEnd();
+    void listVisibilityChanged(bool visible);
+
 private slots:
     void on_btnPlay_clicked();
 
@@ -27,14 +37,15 @@ private slots:
 
     void on_btnStop_clicked();
 
-    void on_btnVideoOpen_clicked();
+    void on_progressVideo_sliderMoved(int position);
+
+    void on_btnVideoList_clicked();
 
 protected:
     void showEvent(QShowEvent * event);
 
 private:
     Ui::MainWindow *ui;
-
-    vlc_player * videoWidget;
+    VideoList * m_videolist;
 };
 #endif // MAINWINDOW_H

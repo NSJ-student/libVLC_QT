@@ -1,19 +1,25 @@
 #include "vlc_player.h"
-#include "ui_vlc_player.h"
 
 #define LIB_DLLEXTERN __declspec(dllimport)
 
 vlc_player::vlc_player(QWidget *parent) :
     QVideoWidget(parent),
-    ui(new Ui::vlc_player),
-    vlc_inst(Q_NULLPTR), vlc_mp(Q_NULLPTR), vlc_m(Q_NULLPTR)
+    vlc_init(false), vlc_inst(Q_NULLPTR), vlc_mp(Q_NULLPTR), vlc_m(Q_NULLPTR)
 {
     this->setStyleSheet("background-color: rgb(0, 0, 0);");
+
+    m_video_worker.moveToThread(&m_video_thread);
+    connect(&m_video_thread, SIGNAL(started()), &m_video_worker, SLOT(body()));
+    connect(&m_video_worker, SIGNAL(setTotalTime(long)), this, SLOT(setTotalTime(long)));
+    connect(&m_video_worker, SIGNAL(setCurrentTime(long)), this, SLOT(setCurrentTime(long)));
+    qRegisterMetaType<libvlc_state_t>("libvlc_state_t");
+    connect(&m_video_worker, SIGNAL(setVideoState(libvlc_state_t)), this, SLOT(setVideoState(libvlc_state_t)));
+    connect(&m_video_worker, SIGNAL(finished()), this, SLOT(videoThreadDone()));
 }
 
 vlc_player::~vlc_player()
 {
-    delete ui;
+    stop();
 }
 
 bool vlc_player::play(const QString &path)
@@ -23,11 +29,24 @@ bool vlc_player::play(const QString &path)
         return false;
     }
 
+    if(vlc_m)
+    {
+        libvlc_state_t state = libvlc_media_get_state(vlc_m);
+        if(state == libvlc_Paused)
+        {
+            libvlc_media_player_play(vlc_mp);
+            return true;
+        }
+    }
+
+    video_thread_cancel();
     libvlc_media_player_stop(vlc_mp);
 
-    vlc_m = libvlc_media_new_path(vlc_inst, path.toUtf8().data());
+    QString new_path = QString("file:///") + path;
+    vlc_m = libvlc_media_new_location(vlc_inst, new_path.toUtf8().data());
     if(vlc_m == Q_NULLPTR)
     {
+        qDebug() << "vlc_m == NULL";
         return false;
     }
 
@@ -37,12 +56,18 @@ bool vlc_player::play(const QString &path)
     libvlc_media_player_play(vlc_mp);
 
     current_path = path;
+    m_video_worker.setParams(vlc_mp, vlc_m);
+    m_video_thread.start();
     return true;
 }
 
 bool vlc_player::pause()
 {
     if(!vlc_obj_check())
+    {
+        return false;
+    }
+    if(!vlc_m)
     {
         return false;
     }
@@ -72,6 +97,18 @@ bool vlc_player::stop()
     }
 
     libvlc_media_player_stop(vlc_mp);
+    m_video_thread.wait(1000);
+    if(m_video_thread.isRunning())
+    {
+        m_video_thread.quit();
+        m_video_thread.wait(1000);
+        if(m_video_thread.isRunning())
+        {
+            qDebug() << "terminate";
+            m_video_thread.terminate();
+        }
+    }
+
     return true;
 }
 
@@ -82,17 +119,69 @@ libvlc_state_t vlc_player::state()
         return libvlc_Error;
     }
 
-    return libvlc_media_get_state(vlc_m);;
+    return libvlc_media_get_state(vlc_m);
+}
+
+void vlc_player::set_time(long current_ms)
+{
+    if(!vlc_obj_check())
+    {
+        return;
+    }
+
+    libvlc_media_player_set_time(vlc_mp, current_ms);
+}
+
+void vlc_player::setTotalTime(long total_ms)
+{
+    emit updateTotalTime(total_ms);
+}
+
+void vlc_player::setCurrentTime(long current_ms)
+{
+    emit updateCurrentTime(current_ms);
+}
+
+void vlc_player::setVideoState(libvlc_state_t state)
+{
+    emit updateVideoState(state);
+}
+
+void vlc_player::video_thread_cancel()
+{
+    if(m_video_thread.isRunning())
+    {
+        m_video_worker.cancel = true;
+        m_video_thread.wait(1000);
+        if(m_video_thread.isRunning())
+        {
+            m_video_thread.quit();
+            m_video_thread.wait(1000);
+            if(m_video_thread.isRunning())
+            {
+                qDebug() << "terminate";
+                m_video_thread.terminate();
+            }
+        }
+    }
+}
+
+void vlc_player::videoThreadDone()
+{
+    if(!m_video_worker.cancel)
+    {
+        emit videoEnd();
+    }
 }
 
 bool vlc_player::init_vlc()
 {
-    const char * const vlc_args[] = {
-          "--verbose=2", // Be much more verbose then normal for debugging purpose
-          "--intf=dummy"
-    };
-    vlc_inst = libvlc_new(sizeof(vlc_args) / sizeof(vlc_args[0]), vlc_args);
-//    vlc_inst = libvlc_new(0, NULL);
+    if(vlc_init)
+    {
+        return false;
+    }
+
+    vlc_inst = libvlc_new(0, NULL);
     if(vlc_inst == Q_NULLPTR)
     {
         return false;
@@ -111,5 +200,8 @@ bool vlc_player::init_vlc()
     libvlc_media_player_set_hwnd(vlc_mp, windowID);
 #endif
 
+    vlc_init = true;
     return true;
 }
+
+#include "moc_vlc_player.cpp"
