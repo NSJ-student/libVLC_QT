@@ -32,14 +32,14 @@ border-color: rgb(0, 0, 0);</string>
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <property name="bottomMargin">
-        <number>0</number>
+        <number>5</number>
        </property>
        <item>
         <widget class="QLabel" name="lblState">
@@ -90,7 +90,7 @@ border-color: rgb(0, 0, 0);</string>
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
@@ -151,7 +151,7 @@ border-color: rgb(0, 0, 0);</string>
      <x>0</x>
      <y>0</y>
      <width>1052</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

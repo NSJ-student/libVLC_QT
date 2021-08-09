@@ -12,7 +12,9 @@
 extern "C" {
 #endif
 
+#if !defined(Q_OS_LINUX)
 typedef int ssize_t;
+#endif
 #include <vlc/vlc.h>
 
 #ifdef __cplusplus

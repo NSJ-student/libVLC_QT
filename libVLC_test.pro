@@ -13,11 +13,10 @@ QMAKE_LFLAGS += -no-pie
 # Tell qmake to use pkg-config to find QtGStreamer.
 CONFIG += link_pkgconfig c++11
 
-PKGCONFIG += Qt5GStreamer-1.0 Qt5GStreamerUi-1.0 Qt5GStreamerUtils-1.0 gstreamer-1.0 gstreamer-video-1.0 gtk+-3.0
+PKGCONFIG += libvlc
 
-INCLUDEPATH += /usr/local/include/opencv4
-LIBS += -L/usr/local/lib -lopencv_shape -lopencv_videoio -lopencv_imgcodecs
-LIBS += -lopencv_highgui -lopencv_core -lopencv_imgproc -lopencv_features2d -lopencv_calib3d
+#INCLUDEPATH += /usr/include
+LIBS += -L/usr/lib/aarch64-linux-gnu/vlc -lvlc
 
 }
 
