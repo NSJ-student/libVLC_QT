@@ -18,6 +18,21 @@ vlc_player::vlc_player(QWidget *parent) :
 vlc_player::~vlc_player()
 {
     stop();
+
+    /*
+    if(vlc_m)
+    {
+        libvlc_media_release(vlc_m);
+    }
+    */
+    if(vlc_mp)
+    {
+        libvlc_media_player_release(vlc_mp);
+    }
+    if(vlc_inst)
+    {
+        libvlc_release(vlc_inst);
+    }
 }
 
 bool vlc_player::play(const QString &path)

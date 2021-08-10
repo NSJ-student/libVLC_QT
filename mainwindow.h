@@ -41,6 +41,12 @@ private slots:
 
     void on_btnVideoList_clicked();
 
+    void on_actionAlways_on_Top_triggered(bool checked);
+
+    void on_actionFullscreen_triggered(bool checked);
+
+    void on_actionClose_triggered();
+
 protected:
     void showEvent(QShowEvent * event);
 

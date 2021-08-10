@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->videoWidget, SIGNAL(updateCurrentTime(long)), this, SLOT(setCurrentTime(long)));
     qRegisterMetaType<libvlc_state_t>("libvlc_state_t");
     connect(ui->videoWidget, SIGNAL(updateVideoState(libvlc_state_t)), this, SLOT(setVideoState(libvlc_state_t)));
-    connect(ui->videoWidget, SIGNAL(videoEnd()), this, SLOT(videoEnd()));
+    connect(ui->videoWidget, SIGNAL(videoEnd()), this, SLOT(videoEnd()), Qt::QueuedConnection);
 
 }
 
@@ -156,3 +156,40 @@ void MainWindow::on_btnVideoList_clicked()
         m_videolist->show();
     }
 }
+
+void MainWindow::on_actionAlways_on_Top_triggered(bool checked)
+{
+    Qt::WindowFlags flags = this->windowFlags();
+    if (checked)
+    {
+        this->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+        this->show();
+    }
+    else
+    {
+        this->setWindowFlags(flags ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
+        this->show();
+    }
+}
+
+void MainWindow::on_actionFullscreen_triggered(bool checked)
+{
+    if (checked)
+    {
+#if defined(Q_OS_LINUX)
+        this->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::WindowType_Mask);
+#endif
+        this->showFullScreen();
+    }
+    else
+    {
+        this->showNormal();
+    }
+}
+
+
+void MainWindow::on_actionClose_triggered()
+{
+    this->close();
+}
+

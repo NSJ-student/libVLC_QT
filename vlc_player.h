@@ -8,19 +8,11 @@
 #include <QThread>
 #include <QMetaType>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #if !defined(Q_OS_LINUX)
 typedef int ssize_t;
 #endif
 #include <vlc/vlc.h>
 #include <vlc/libvlc_version.h>
-
-#ifdef __cplusplus
-};
-#endif
 
 Q_DECLARE_METATYPE(libvlc_state_t);
 
