@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     qRegisterMetaType<libvlc_state_t>("libvlc_state_t");
     connect(ui->videoWidget, SIGNAL(updateVideoState(libvlc_state_t)), this, SLOT(setVideoState(libvlc_state_t)));
     connect(ui->videoWidget, SIGNAL(videoEnd()), this, SLOT(videoEnd()), Qt::QueuedConnection);
+    connect(ui->videoWidget, SIGNAL(videoEndError()), this, SLOT(videoEndError()), Qt::QueuedConnection);
 
     QAction * actionMoveNext = new QAction(this);
     actionMoveNext->setShortcut(Qt::Key_Right);
@@ -98,6 +99,12 @@ void MainWindow::videoEnd()
     ui->progressVideo->setValue(0);
     ui->lblState->setText("Ended");
     m_videolist->playNext();
+}
+
+void MainWindow::videoEndError()
+{
+    ui->progressVideo->setValue(0);
+    ui->lblState->setText("Ended");
 }
 
 void MainWindow::on_btnPlay_clicked()

@@ -10,19 +10,22 @@ CONFIG += c++11
 
 linux-g++ | linux-g++-64 | linux-g++-32 {
 QMAKE_LFLAGS += -no-pie
-# Tell qmake to use pkg-config to find QtGStreamer.
-CONFIG += link_pkgconfig c++11
 
-PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/home/mik21/vlc/build/lib/pkgconfig
+USER_LIB_PATH=/home/mik21/Desktop/libvlc
+#USER_LIB_PATH=/home/mik21/vlc/build
+
+# Tell qmake to use pkg-config to find library
+CONFIG += link_pkgconfig c++11
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/home/mik21/Desktop/libvlc/lib/pkgconfig
 PKGCONFIG += libvlc
 
 # sudo apt-get install libvlc-dev
 #INCLUDEPATH += /usr/include
 #LIBS += -L/usr/lib/aarch64-linux-gnu/vlc -lvlc
 
-QMAKE_INCDIR += /home/mik21/vlc/build/include
-QMAKE_LFLAGS += -L/home/mik21/vlc/build/lib -lvlc -lvlccore
-QMAKE_LFLAGS += "-Wl,-rpath=/home/mik21/vlc/build/lib"
+QMAKE_INCDIR += /home/mik21/Desktop/libvlc/include
+QMAKE_LFLAGS += -L/home/mik21/Desktop/libvlc/lib -lvlc -lvlccore
+QMAKE_LFLAGS += "-Wl,-rpath=/home/mik21/Desktop/libvlc/lib"
 
 }
 

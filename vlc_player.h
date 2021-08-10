@@ -34,6 +34,7 @@ public:
 
 signals:
     void finished();
+    void finished_error();
     void setTotalTime(long total_ms);
     void setCurrentTime(long current_ms);
     void setVideoState(libvlc_state_t state);
@@ -44,7 +45,7 @@ public slots:
 //        qDebug() << __func__ << QThread::currentThread();
         if(!vlc_mp)
         {
-            emit finished();
+            emit finished_error();
             return;
         }
 
@@ -61,6 +62,7 @@ public slots:
         {
             if(cancel)
             {
+                emit finished_error();
                 return;
             }
             if(libvlc_media_player_is_playing(vlc_mp))
@@ -74,6 +76,7 @@ public slots:
         {
             if(cancel)
             {
+                emit finished_error();
                 return;
             }
 
@@ -114,6 +117,10 @@ public slots:
         {
             emit finished();
         }
+        else
+        {
+            emit finished_error();
+        }
     }
 
 private:
@@ -148,9 +155,11 @@ signals:
     void updateCurrentTime(long current_ms);
     void updateVideoState(libvlc_state_t state);
     void videoEnd();
+    void videoEndError();
 
 public slots:
     void videoThreadDone();
+    void videoThreadError();
     void setTotalTime(long total_ms);
     void setCurrentTime(long current_ms);
     void setVideoState(libvlc_state_t state);

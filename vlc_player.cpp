@@ -13,6 +13,7 @@ vlc_player::vlc_player(QWidget *parent) :
     qRegisterMetaType<libvlc_state_t>("libvlc_state_t");
     connect(&m_video_worker, SIGNAL(setVideoState(libvlc_state_t)), this, SLOT(setVideoState(libvlc_state_t)));
     connect(&m_video_worker, SIGNAL(finished()), this, SLOT(videoThreadDone()));
+    connect(&m_video_worker, SIGNAL(finished_error()), this, SLOT(videoThreadError()));
 }
 
 vlc_player::~vlc_player()
@@ -239,6 +240,15 @@ void vlc_player::videoThreadDone()
     {
         emit videoEnd();
     }
+    else
+    {
+        emit videoEndError();
+    }
+}
+
+void vlc_player::videoThreadError()
+{
+    emit videoEndError();
 }
 
 bool vlc_player::init_vlc()

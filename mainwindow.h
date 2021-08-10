@@ -28,6 +28,7 @@ public slots:
     void setCurrentTime(long current_ms);
     void setVideoState(libvlc_state_t state);
     void videoEnd();
+    void videoEndError();
     void listVisibilityChanged(bool visible);
 
     void onActionactionMoveForward_triggered();
