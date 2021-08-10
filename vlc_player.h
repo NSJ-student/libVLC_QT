@@ -16,6 +16,7 @@ extern "C" {
 typedef int ssize_t;
 #endif
 #include <vlc/vlc.h>
+#include <vlc/libvlc_version.h>
 
 #ifdef __cplusplus
 };
@@ -29,14 +30,13 @@ class VideoWorker : public QObject
 
 public:
     VideoWorker(QObject *parent = Q_NULLPTR) :
-        QObject(parent), vlc_mp(Q_NULLPTR), vlc_m(Q_NULLPTR)
+        QObject(parent), vlc_mp(Q_NULLPTR)
     {
 
     }
-    void setParams(libvlc_media_player_t * mp, libvlc_media_t * m)
+    void setParams(libvlc_media_player_t * mp)
     {
         vlc_mp = mp;
-        vlc_m  = m;
     }
     bool cancel;
 
@@ -50,11 +50,6 @@ public slots:
     void body()
     {
         qDebug() << __func__ << QThread::currentThread();
-        if(!vlc_m)
-        {
-            emit finished();
-            return;
-        }
         if(!vlc_mp)
         {
             emit finished();
@@ -64,7 +59,7 @@ public slots:
         cancel = false;
         libvlc_time_t total_ms_pre = libvlc_media_player_get_length(vlc_mp);
         libvlc_time_t current_ms_pre = libvlc_media_player_get_time(vlc_mp);
-        libvlc_state_t state_pre  = libvlc_media_get_state(vlc_m);
+        libvlc_state_t state_pre = libvlc_media_player_get_state(vlc_mp);
         emit setTotalTime(total_ms_pre);
         emit setCurrentTime(current_ms_pre);
         emit setVideoState(state_pre);
@@ -76,17 +71,16 @@ public slots:
                 return;
             }
 
-            libvlc_state_t state = libvlc_media_get_state(vlc_m);
+            libvlc_state_t state = libvlc_media_player_get_state(vlc_mp);
             if ((state == libvlc_Stopped) ||
                 (state == libvlc_Error) ||
-                (state == libvlc_Ended) ||
-                (state == libvlc_NothingSpecial))
+                (state == libvlc_Ended))
             {
+                qDebug() << "state: " << state;
                 break;
             }
 
             long total_ms = libvlc_media_player_get_length(vlc_mp);
-
             long current_ms = libvlc_media_player_get_time(vlc_mp);
 
             if (total_ms != total_ms_pre)
@@ -113,7 +107,6 @@ public slots:
 
 private:
     libvlc_media_player_t * vlc_mp;
-    libvlc_media_t * vlc_m;
 };
 
 class vlc_player : public QVideoWidget

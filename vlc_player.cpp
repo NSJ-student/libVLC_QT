@@ -6,8 +6,6 @@ vlc_player::vlc_player(QWidget *parent) :
     QVideoWidget(parent),
     vlc_init(false), vlc_inst(Q_NULLPTR), vlc_mp(Q_NULLPTR), vlc_m(Q_NULLPTR)
 {
-    this->setStyleSheet("background-color: rgb(0, 0, 0);");
-
     m_video_worker.moveToThread(&m_video_thread);
     connect(&m_video_thread, SIGNAL(started()), &m_video_worker, SLOT(body()));
     connect(&m_video_worker, SIGNAL(setTotalTime(long)), this, SLOT(setTotalTime(long)));
@@ -29,18 +27,19 @@ bool vlc_player::play(const QString &path)
         return false;
     }
 
-    if(vlc_m)
+    libvlc_state_t state = libvlc_media_player_get_state(vlc_mp);
+    if(state == libvlc_Paused)
     {
-        libvlc_state_t state = libvlc_media_get_state(vlc_m);
-        if(state == libvlc_Paused)
-        {
-            libvlc_media_player_play(vlc_mp);
-            return true;
-        }
+        libvlc_media_player_play(vlc_mp);
+        return true;
     }
 
     video_thread_cancel();
+#if (LIBVLC_VERSION_MAJOR >= 4)
+    libvlc_media_player_stop_async(vlc_mp);
+#else
     libvlc_media_player_stop(vlc_mp);
+#endif
 
     QString new_path = QString("file:///") + path;
     vlc_m = libvlc_media_new_location(vlc_inst, new_path.toUtf8().data());
@@ -56,7 +55,7 @@ bool vlc_player::play(const QString &path)
     libvlc_media_player_play(vlc_mp);
 
     current_path = path;
-    m_video_worker.setParams(vlc_mp, vlc_m);
+    m_video_worker.setParams(vlc_mp);
     m_video_thread.start();
     return true;
 }
@@ -67,12 +66,8 @@ bool vlc_player::pause()
     {
         return false;
     }
-    if(!vlc_m)
-    {
-        return false;
-    }
 
-    libvlc_state_t state = libvlc_media_get_state(vlc_m);
+    libvlc_state_t state = libvlc_media_player_get_state(vlc_mp);
     if(state == libvlc_Playing )
     {
         libvlc_media_player_pause(vlc_mp);
@@ -95,8 +90,11 @@ bool vlc_player::stop()
     {
         return false;
     }
-
+#if (LIBVLC_VERSION_MAJOR >= 4)
+    libvlc_media_player_stop_async(vlc_mp);
+#else
     libvlc_media_player_stop(vlc_mp);
+#endif
     m_video_thread.wait(1000);
     if(m_video_thread.isRunning())
     {
@@ -114,12 +112,12 @@ bool vlc_player::stop()
 
 libvlc_state_t vlc_player::state()
 {
-    if(!vlc_m)
+    if(!vlc_mp)
     {
         return libvlc_Error;
     }
 
-    return libvlc_media_get_state(vlc_m);
+    return libvlc_media_player_get_state(vlc_mp);
 }
 
 void vlc_player::set_time(long current_ms)
@@ -129,7 +127,11 @@ void vlc_player::set_time(long current_ms)
         return;
     }
 
+#if (LIBVLC_VERSION_MAJOR >= 4)
+    libvlc_media_player_set_time(vlc_mp, current_ms, true);
+#else
     libvlc_media_player_set_time(vlc_mp, current_ms);
+#endif
 }
 
 void vlc_player::setTotalTime(long total_ms)
