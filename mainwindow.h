@@ -30,6 +30,9 @@ public slots:
     void videoEnd();
     void listVisibilityChanged(bool visible);
 
+    void onActionactionMoveForward_triggered();
+    void onActionactionMoveBackward_triggered();
+
 private slots:
     void on_btnPlay_clicked();
 

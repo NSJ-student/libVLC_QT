@@ -9,7 +9,7 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 linux-g++ | linux-g++-64 | linux-g++-32 {
-#QMAKE_LFLAGS += -no-pie
+QMAKE_LFLAGS += -no-pie
 # Tell qmake to use pkg-config to find QtGStreamer.
 CONFIG += link_pkgconfig c++11
 

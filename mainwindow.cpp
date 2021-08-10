@@ -24,6 +24,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->videoWidget, SIGNAL(updateVideoState(libvlc_state_t)), this, SLOT(setVideoState(libvlc_state_t)));
     connect(ui->videoWidget, SIGNAL(videoEnd()), this, SLOT(videoEnd()), Qt::QueuedConnection);
 
+    QAction * actionMoveNext = new QAction(this);
+    actionMoveNext->setShortcut(Qt::Key_Right);
+    connect(actionMoveNext, SIGNAL(triggered()), this, SLOT(onActionactionMoveForward_triggered()));
+    this->addAction(actionMoveNext);
+
+    QAction * actionMovePrev = new QAction(this);
+    actionMovePrev->setShortcut(Qt::Key_Left);
+    connect(actionMovePrev, SIGNAL(triggered()), this, SLOT(onActionactionMoveBackward_triggered()));
+    this->addAction(actionMovePrev);
 }
 
 MainWindow::~MainWindow()
@@ -177,7 +186,7 @@ void MainWindow::on_actionFullscreen_triggered(bool checked)
     if (checked)
     {
 #if defined(Q_OS_LINUX)
-        this->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::WindowType_Mask);
+//        this->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::WindowType_Mask);
 #endif
         this->showFullScreen();
     }
@@ -193,3 +202,13 @@ void MainWindow::on_actionClose_triggered()
     this->close();
 }
 
+
+void MainWindow::onActionactionMoveForward_triggered()
+{
+    ui->videoWidget->move_next();
+}
+
+void MainWindow::onActionactionMoveBackward_triggered()
+{
+    ui->videoWidget->move_prev();
+}
