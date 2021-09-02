@@ -149,6 +149,7 @@ public:
 
     libvlc_state_t state();
     void set_time(long current_ms);
+    void set_aspect_ratio(char * ratio, float factor);
 
 signals:
     void updateTotalTime(long total_ms);

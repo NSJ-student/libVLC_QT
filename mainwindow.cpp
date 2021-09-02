@@ -219,3 +219,10 @@ void MainWindow::onActionactionMoveBackward_triggered()
 {
     ui->videoWidget->move_prev();
 }
+
+void MainWindow::on_btnSetAspectRatio_clicked()
+{
+    QString ratio = ui->lineVlcAspectRatio->text();
+    ui->videoWidget->set_aspect_ratio(ratio.toUtf8().data(), ui->dsbVlcScale->value());
+}
+

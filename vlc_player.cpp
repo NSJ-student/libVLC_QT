@@ -154,6 +154,25 @@ void vlc_player::set_time(long current_ms)
 #endif
 }
 
+void vlc_player::set_aspect_ratio(char *ratio, float factor)
+{
+    if(!vlc_obj_check())
+    {
+        return;
+    }
+    if(!libvlc_media_player_is_playing(vlc_mp))
+    {
+        return;
+    }
+
+    libvlc_video_set_aspect_ratio(vlc_mp, ratio);
+    if(factor < 0)
+    {
+        return;
+    }
+    libvlc_video_set_scale(vlc_mp, factor);
+}
+
 void vlc_player::move_next()
 {
     if(!vlc_obj_check())

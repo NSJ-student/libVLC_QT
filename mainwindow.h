@@ -51,6 +51,8 @@ private slots:
 
     void on_actionClose_triggered();
 
+    void on_btnSetAspectRatio_clicked();
+
 protected:
     void showEvent(QShowEvent * event);
 
